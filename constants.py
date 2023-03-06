@@ -24,9 +24,7 @@ default_input_file_path = os.environ["INPUT_PATH"]
 default_output_file_path = os.environ["OUTPUT_PATH"]
 os.environ["__MODIN_AUTOIMPORT_PANDAS__"] = "1"
 target_signals = ["7E3", "7E4", "1", "2", "3", "4", "5", "6"]
-
-batch_size = 2 ** 22
-break_at_batch = None
+batch_size = int(os.environ["BATCH_SIZE_IN_Mb"]) ** 1e6
 
 mdf_data_types = {'Timestamp': float,
               'Bus': str,
