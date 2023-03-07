@@ -25,7 +25,7 @@ def mp_signal_processor(df, buffer, pivot_buffer):
     df = df.explode("signal_value_pairs")
     df[['Signal','Value']] = pd.DataFrame(df.signal_value_pairs.tolist(), index= df.index)
     df = df[["Timestamp", "Bus", "Signal","Value"]]
-    buffer.append(df.copy())
+    buffer.append(df.copy()) #Note : If we want to do part 1 and 2 together we can skip this line
 
     # carry on with part 2 in the same thread
     df["frames_10ms"] = df["Timestamp"]*100
@@ -35,7 +35,7 @@ def mp_signal_processor(df, buffer, pivot_buffer):
     df["Timestamp"] = df["frames_10ms"] / 100
     df["Bus_Signal"] = df["Bus"] + df["Signal"]
 
-    pivot_buffer.append(df[["Timestamp", "Bus_Signal","Value"]].copy())
+    pivot_buffer.append(df[["Timestamp", "Bus_Signal", "Value"]].copy())
 
     del df
 
@@ -51,7 +51,7 @@ def mp_parser(input_path : str = None):
     buffer = manager.list()
     pivot_buffer = manager.list()
     for chunk in tqdm(chunks):
-        p = Process(target=mp_signal_processor, args=(chunk, buffer, pivot_buffer,))
+        p = Process(target=mp_signal_processor_in_parts, args=(chunk, buffer, pivot_buffer,))
         p.start()
         proc_list.append(p)
         if batch_count % proc_num == 0:

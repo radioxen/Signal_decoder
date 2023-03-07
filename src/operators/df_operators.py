@@ -30,12 +30,6 @@ def build_intermediary_df(df):
     df["signal_value_pairs"] = df.apply(
         lambda x: get_signal_value_pairs(x.values.tolist()), axis=1
     )
-
-    # df = df.explode("signal_value_pairs")
-    # df[['Signal','Value']] = pd.DataFrame(df.signal_value_pairs.tolist(), index= df.index)
-
-
-    df = df.sort_values(by="Timestamp")
     df["frames_10ms"] = df["Timestamp"]*100
     df["frames_10ms"] = df["frames_10ms"].astype("int")
     df = df.sort_values(by="Timestamp")
