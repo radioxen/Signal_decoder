@@ -32,7 +32,6 @@ if __name__ == "__main__":
             else:
                 mp_pool_executor()
 
-
         elif sys.argv[1] == "parallel_at_once":
             print("Processsing with Parallel EXECUTOR, without mediatory dataframe")
             if len(sys.argv) > 2:
