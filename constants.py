@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
 import warnings
-warnings.simplefilter(action='ignore')
+
+warnings.simplefilter(action="ignore")
 
 load_dotenv(".env")
 import findspark
@@ -26,12 +27,7 @@ os.environ["__MODIN_AUTOIMPORT_PANDAS__"] = "1"
 target_signals = ["7E3", "7E4", "1", "2", "3", "4", "5", "6"]
 batch_size = int(os.environ["BATCH_SIZE_IN_Mb"]) * 1e6
 
-mdf_data_types = {'Timestamp': float,
-              'Bus': str,
-              'Signal': str,
-              'Value': float
-              }
-
+mdf_data_types = {"Timestamp": float, "Bus": str, "Signal": str, "Value": float}
 
 
 def measure_performance(func):

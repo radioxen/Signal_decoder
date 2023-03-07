@@ -189,10 +189,10 @@ def signal_aggregator(signal):
 def get_signal_value_pairs(signal):
     if signal[2] == "7E3":
         return [
-            ["roll_input",get_roll_input(signal[4] + signal[5])],
-            ["pitch_input",get_pitch_input(signal[6] + signal[7])],
+            ["roll_input", get_roll_input(signal[4] + signal[5])],
+            ["pitch_input", get_pitch_input(signal[6] + signal[7])],
             ["yaw_input", get_yaw_input(signal[8] + signal[9])],
-            ["hover_throttle_input",get_hover_throttle_input(signal[10] + signal[11])]
+            ["hover_throttle_input", get_hover_throttle_input(signal[10] + signal[11])],
         ]
 
     if signal[2] == "7E4":
@@ -202,37 +202,49 @@ def get_signal_value_pairs(signal):
         ]
 
     if signal[2] == "1":
-        return [[
-            "pitch_angle",
-            get_IMU_pitch_angle(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "pitch_angle",
+                get_IMU_pitch_angle(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
 
     if signal[2] == "2":
-        return [[
-            "pitch_rate",
-            get_IMU_pitch_rate(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "pitch_rate",
+                get_IMU_pitch_rate(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
 
     if signal[2] == "3":
-        return [[
-            "roll_angle",
-            get_IMU_roll_angle(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "roll_angle",
+                get_IMU_roll_angle(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
 
     if signal[2] == "4":
-        return [[
-            "roll_rate",
-            get_IMU_roll_rate(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "roll_rate",
+                get_IMU_roll_rate(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
 
     if signal[2] == "5":
-        return [[
-            "yaw_angle",
-            get_IMU_yaw_angle(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "yaw_angle",
+                get_IMU_yaw_angle(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
 
     if signal[2] == "6":
-        return [[
-            "yaw_rate",
-            get_IMU_yaw_rate(signal[4] + signal[5] + signal[6] + signal[7]),
-        ]]
+        return [
+            [
+                "yaw_rate",
+                get_IMU_yaw_rate(signal[4] + signal[5] + signal[6] + signal[7]),
+            ]
+        ]
