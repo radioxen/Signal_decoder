@@ -1,5 +1,5 @@
 from constants import *
-from multiprocessing import Pool, Process, Manager
+from multiprocessing import Process, Manager
 from src.operators.df_operators import *
 from src.operators.signal_processor import *
 

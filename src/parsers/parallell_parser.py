@@ -96,7 +96,7 @@ def mp_parser(input_path: str = None):
     write_mp_to_final_parquet(df=final_df)
 
 
-def mp_parser_at_once(input_path: str = None):
+def mp_parser(input_path: str = None):
     batch_count = 1
     chunks = pd.read_csv(
         input_path,
