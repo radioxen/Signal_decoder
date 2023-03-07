@@ -6,29 +6,41 @@ from src.operators.signal_processor import *
 
 def mp_signal_processor(df, buffer, pivot_buffer):
     """
-    Takes a list of binary data representing signals, then decodes each row and parse it
-    only if the ID component of the signal corresponds to a desired list
-    of IDs, and appends the parsed signals to a list called signals.
-    The function then creates a Pandas DataFrame from the signals list, replicate row for signals
-    7E3 and 7E4 which have more than one value, then applies data type conversions to all columns.
-    Finally, it appends the resulting DataFrame to an existing parquet file, which was generated earlier.
-    :param rows: rows of signals in Bytes format
+    Part 1:
+    Takes a pandas dataframe of binary data representing signals, then decodes each row and parse it
+    only if the ID component of the signal corresponds to a desired list of IDs, The function then
+    creates a Pandas DataFrame from the signals list, forming signal_value pairs for every hex signal.
+    Then the Signal_Value column is exploded into multiple rows for every signal-pair value and then
+    the target columns ["Timestamp", "Bus", "Signal", "Value"] are appended to a buffer list which will
+
+    Part 2:
+    be concatenated and saved in a csv file later.
+    After part 1 is Done, The function performs the transformations and filter
+    the 10-ms timeframes, drops duplicated rows for each frame and finally add a dataframe with
+    ["Timestamp", "Bus_Signal", "Value"] columns to pivot_buffer list, which will be pivoted later.
+    :param df: dataframe containing raw hex signals
+    :param buffer: multiprocessing Manager list object
+    :param pivot_buffer: multiprocessing Manager list object
     :return: None
     """
 
-    #Complete part 1 and save to file,
+    # Complete part 1 and save to file,
     df = df[df["ID (hex)"].isin(target_signals)]
     df["signal_value_pairs"] = df.apply(
         lambda x: get_signal_value_pairs(x.values.tolist()), axis=1
     )
 
     df = df.explode("signal_value_pairs")
-    df[['Signal','Value']] = pd.DataFrame(df.signal_value_pairs.tolist(), index= df.index)
-    df = df[["Timestamp", "Bus", "Signal","Value"]]
-    buffer.append(df.copy()) #Note : If we want to do part 1 and 2 together we can skip this line
+    df[["Signal", "Value"]] = pd.DataFrame(
+        df.signal_value_pairs.tolist(), index=df.index
+    )
+    df = df[["Timestamp", "Bus", "Signal", "Value"]]
+    buffer.append(
+        df.copy()
+    )  # Note : If we want to do part 1 and 2 together we can skip this line
 
     # carry on with part 2 in the same thread
-    df["frames_10ms"] = df["Timestamp"]*100
+    df["frames_10ms"] = df["Timestamp"] * 100
     df["frames_10ms"] = df["frames_10ms"].astype("int")
     df = df.sort_values(by="Timestamp")
     df.drop_duplicates(subset=["frames_10ms"], keep="last", inplace=True)
@@ -40,10 +52,14 @@ def mp_signal_processor(df, buffer, pivot_buffer):
     del df
 
 
-def mp_parser(input_path : str = None):
+def mp_parser(input_path: str = None):
     batch_count = 1
     chunks = pd.read_csv(
-        input_path, compression="gzip", low_memory=True, chunksize=batch_size//16, iterator=True
+        input_path,
+        compression="gzip",
+        low_memory=True,
+        chunksize=batch_size // 16,
+        iterator=True,
     )
     proc_num = 32
     proc_list = []
@@ -51,7 +67,14 @@ def mp_parser(input_path : str = None):
     buffer = manager.list()
     pivot_buffer = manager.list()
     for chunk in tqdm(chunks):
-        p = Process(target=mp_signal_processor_in_parts, args=(chunk, buffer, pivot_buffer,))
+        p = Process(
+            target=mp_signal_processor,
+            args=(
+                chunk,
+                buffer,
+                pivot_buffer,
+            ),
+        )
         p.start()
         proc_list.append(p)
         if batch_count % proc_num == 0:
@@ -69,6 +92,49 @@ def mp_parser(input_path : str = None):
 
     final_df = pd.concat(pivot_buffer).sort_values(by="Timestamp")
     final_df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
-    final_df = final_df.pivot(index='Timestamp', columns='Bus_Signal', values='Value')
-    write_mp_to_final_parquet(df = final_df)
+    final_df = final_df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
+    write_mp_to_final_parquet(df=final_df)
 
+
+def mp_parser_at_once(input_path: str = None):
+    batch_count = 1
+    chunks = pd.read_csv(
+        input_path,
+        compression="gzip",
+        low_memory=True,
+        chunksize=batch_size // 16,
+        iterator=True,
+    )
+    proc_num = 32
+    proc_list = []
+    manager = Manager()
+    buffer = manager.list()
+    pivot_buffer = manager.list()
+    for chunk in tqdm(chunks):
+        p = Process(
+            target=mp_signal_processor,
+            args=(
+                chunk,
+                buffer,
+                pivot_buffer,
+            ),
+        )
+        p.start()
+        proc_list.append(p)
+        if batch_count % proc_num == 0:
+            for proc in proc_list:
+                proc.join()
+            write_mediatory_dataset("mp_results.gzip", buffer)
+            buffer = manager.list()
+            proc_list = []
+        batch_count += 1
+
+    if buffer:
+        for proc in proc_list:
+            proc.join()
+            write_mediatory_dataset("mp_results_final.gzip", buffer)
+
+    final_df = pd.concat(pivot_buffer).sort_values(by="Timestamp")
+    final_df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
+    final_df = final_df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
+    write_mp_to_final_parquet(df=final_df)

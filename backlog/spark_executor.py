@@ -20,8 +20,7 @@ df.dropna(how="all")
 df.fillna(df["ID (hex)"].isin(target_signals))
 
 
-
-#INCOMPLETE
+# INCOMPLETE
 # df["signal_value_pairs"] = df.apply(
 #     lambda x: get_signal_value_pairs(x.values.tolist()), axis=1
 # )

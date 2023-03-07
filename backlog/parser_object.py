@@ -5,7 +5,7 @@ import pyarrow as pa
 from tqdm import tqdm
 import pyarrow.parquet as pq
 
-#TODO convert all executors into one object
+# TODO convert all executors into one object
 class Data_parser:
     def __init__(
         self,

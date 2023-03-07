@@ -10,7 +10,8 @@ def iterator(generator, batch_size: int = batch_size):
     counter = 0
     results = []
     pd.DataFrame([], columns=final_columns).to_csv(
-        path_or_buf=default_output_file_path+"/single_thread.gzip", compression="gzip")
+        path_or_buf=default_output_file_path + "/single_thread.gzip", compression="gzip"
+    )
     for item in tqdm(generator):
         if counter == batch_size:
             csv_writer(output_path=default_output_file_path, df=results)
@@ -32,11 +33,17 @@ def signal_decoder(data):
 
 
 def csv_writer(
-    output_path: str = default_output_file_path, df: list = None,
+    output_path: str = default_output_file_path,
+    df: list = None,
 ):
     df = pd.DataFrame.from_records(df, columns=final_columns).explode(
         ["Signal", "Value"]
     )
 
-    df.to_csv(path_or_buf=output_path+"/single_thread.gzip",
-              mode="a", compression="gzip", index=False, header=False)
+    df.to_csv(
+        path_or_buf=output_path + "/single_thread.gzip",
+        mode="a",
+        compression="gzip",
+        index=False,
+        header=False,
+    )
