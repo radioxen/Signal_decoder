@@ -26,7 +26,7 @@ python3 main.py parallel_at_once "absolute/path/to/file"
 
 *To set the number of parallel worker threads, change the ``NUM_CPUS`` variable in the .env file, default is 8.*
 
-###Other options for executing the pipeline are:
+### Other options for executing the pipeline are:
 
 ##### linear executor
  ```console
