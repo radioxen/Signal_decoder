@@ -12,12 +12,18 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## run the script using python,:
+## run the script using python multiprocess:
 The commadn below execute the pipeline with the default executor (Parallel Processing) 
-if you want to 
+
 ```console
 python3 main.py parallel "absolute/path/to/file"
 ```
+
+The pipeline can be executed in parallel all ot once (No csv.gzip mediatory file) with this command:
+```console
+python3 main.py parallel_at_once "absolute/path/to/file"
+```
+
 *To set the number of parallel worker threads, change the ``NUM_CPUS`` variable in the .env file, default is 8.*
 
 ###Other options for executing the pipeline are:
