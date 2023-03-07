@@ -21,7 +21,7 @@ def write_mediatory_dataset_modin(file_name : str= "results.gzip",  df_list: lis
 
 def write_mp_to_final_parquet(file_name : str= "mp_results.parquet",  df:pd.DataFrame = None):
 
-    df.to_parquet(path=default_output_file_path+"/"+file_name, index=False)
+    df.to_parquet(path=default_output_file_path+"/"+file_name, index=True)
 
 
 def build_intermediary_df(df):

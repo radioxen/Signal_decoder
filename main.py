@@ -18,7 +18,7 @@ if __name__ == "__main__":
             else:
                 modin_main()
 
-        elif sys.argv[1] == "linear":
+        elif sys.argv[1] == "generator":
             print("Processsing with SINGLE EXECUTOR")
             if len(sys.argv) > 2:
                 single_executor(input_path)
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         print("""Using default executor, Parallel executor,
               To run the process with other executors, use the below command
               for single thread linear executor run this command: python3 main.py parallel "absoulte/path/to/file or None"
-              for single thread linear executor run this command: python3 main.py single "absoulte/path/to/file or None"
+              for single thread linear executor run this command: python3 main.py generator "absoulte/path/to/file or None"
               for Modin with Ray backend executor run this command: python3 main.py ray "absoulte/path/to/file or None" """)
 
         print("Processsing with Parallel EXECUTOR")
