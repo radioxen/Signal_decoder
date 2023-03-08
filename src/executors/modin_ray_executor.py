@@ -41,3 +41,5 @@ def modin_main(input_path: str = default_input_file_path):
             counter = 0
 
     write_mediatory_dataset_modin(file_name="modin_results.gzip", df_list=df_list)
+
+    write_mpodin_to_final_parquet()

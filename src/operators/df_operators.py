@@ -47,7 +47,7 @@ def write_mpodin_to_final_parquet(
     df[["Signal", "Value"]] = pd.DataFrame(
         df.signal_value_pairs.tolist(), index=df.index
     ).sort_values(by="Timestamp")
-    df[["Bus_Signal"]] = df["Bus"] + "_" + df["Signal"]
+    df["Bus_Signal"] = df["Bus"] + "_" + df["Signal"]
     df["Value"] = df["Value"].astype(float)
     df = df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
     df.to_parquet(path=default_output_file_path + "/" + file_name, index=True)

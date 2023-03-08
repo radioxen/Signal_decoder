@@ -24,7 +24,6 @@ def mp_signal_processor_at_once(df, buffer):
     df = df.sort_values(by="Timestamp")
     df.drop_duplicates(subset=["frames_10ms"], keep="last", inplace=True)
     df["Timestamp"] = df["frames_10ms"] / 100
-
     buffer.append(df)
 
 
@@ -64,8 +63,9 @@ def mp_parser_at_once(input_path: str = None):
     df = df.explode("signal_value_pairs")
     df[["Signal", "Value"]] = pd.DataFrame(
     df.signal_value_pairs.tolist(), index=df.index
-    ).sort_values(by="Timestamp")
-    df[["Bus_Signal"]] = df["Bus"] + "_" + df["Signal"]
+    )
+    df.sort_values(by="Timestamp", inplace=True, ascending=True)
+    df["Bus_Signal"] = df["Bus"] + "_" + df["Signal"]
     df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
     final_df = df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
     write_mp_to_final_parquet(df=final_df)
