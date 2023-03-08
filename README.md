@@ -2,14 +2,23 @@
 Signal parser is a python pipeline for parsing HEX signals of up to 16 bytes long 
 sent from a device with multiple into human readable format dataset.
 it requires a dataset in CSV.gzip format, loaded in its input directory and
-will write the oarsed signals in output directory.
+will write the parsed signals in output directory:
 
 ## build virtualenv with python 3.7+ and install requirments:
 ```console
-git clone https://github.com/radioxen/Signal_decoder.git
+git clone https://github.com/radioxen/```console
+                                      python3 main.py parallel "absolute/path/to/file"
+                                      ```.git
 virtualenv venv --python=python3.9
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+if you already have the repo, pulling from the most recent master branch is recommended:
+```console
+cd ~/Signal_decoder"
+git checkout master
+git pull 
 ```
 
 ## run the script using python multiprocess:
