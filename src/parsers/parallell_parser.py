@@ -49,8 +49,6 @@ def mp_signal_processor(df, buffer, pivot_buffer):
 
     pivot_buffer.append(df[["Timestamp", "Bus_Signal", "Value"]].copy())
 
-    del df
-
 
 def mp_parser(input_path: str = None):
     batch_count = 1
@@ -90,51 +88,7 @@ def mp_parser(input_path: str = None):
             proc.join()
             write_mediatory_dataset("mp_results_final.gzip", buffer)
 
-    final_df = pd.concat(pivot_buffer).sort_values(by="Timestamp")
-    final_df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
-    final_df = final_df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
-    write_mp_to_final_parquet(df=final_df)
-
-
-def mp_parser(input_path: str = None):
-    batch_count = 1
-    chunks = pd.read_csv(
-        input_path,
-        compression="gzip",
-        low_memory=True,
-        chunksize=batch_size // 16,
-        iterator=True,
-    )
-    proc_num = 32
-    proc_list = []
-    manager = Manager()
-    buffer = manager.list()
-    pivot_buffer = manager.list()
-    for chunk in tqdm(chunks):
-        p = Process(
-            target=mp_signal_processor,
-            args=(
-                chunk,
-                buffer,
-                pivot_buffer,
-            ),
-        )
-        p.start()
-        proc_list.append(p)
-        if batch_count % proc_num == 0:
-            for proc in proc_list:
-                proc.join()
-            write_mediatory_dataset("mp_results.gzip", buffer)
-            buffer = manager.list()
-            proc_list = []
-        batch_count += 1
-
-    if buffer:
-        for proc in proc_list:
-            proc.join()
-            write_mediatory_dataset("mp_results_final.gzip", buffer)
-
-    final_df = pd.concat(pivot_buffer).sort_values(by="Timestamp")
-    final_df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
-    final_df = final_df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
-    write_mp_to_final_parquet(df=final_df)
+    df = pd.concat(pivot_buffer).sort_values(by="Timestamp")
+    df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
+    df = df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
+    write_mp_to_final_parquet(df=df)

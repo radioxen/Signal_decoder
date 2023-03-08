@@ -39,6 +39,7 @@ def mp_parser_at_once(input_path: str = None):
     proc_list = []
     manager = Manager()
     buffer = manager.list()
+    counter = 0
     for chunk in tqdm(chunks):
         p = Process(
             target=mp_signal_processor_at_once,
@@ -49,12 +50,17 @@ def mp_parser_at_once(input_path: str = None):
         )
         p.start()
         proc_list.append(p)
+        counter += 1
+        if counter == 64:
+            for proc in proc_list:
+                proc.join()
+                proc_list = []
+                counter = 0
 
     for proc in proc_list:
         proc.join()
 
     df = pd.concat(buffer)
-
     df = df.explode("signal_value_pairs")
     df[["Signal", "Value"]] = pd.DataFrame(
     df.signal_value_pairs.tolist(), index=df.index

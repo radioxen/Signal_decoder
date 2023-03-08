@@ -5,6 +5,11 @@ from src.parsers.parallell_parser import *
 
 
 def modin_main(input_path: str = default_input_file_path):
+    """
+    Same functionality as of mp_pool_executor, done with Modin dataframe with ray backedn.
+    :param input_path: str : input file path
+    :return: None
+    """
     ray.init(
         num_cpus=int(os.environ["NUM_CPUS"]),
         include_dashboard=True,
@@ -35,4 +40,4 @@ def modin_main(input_path: str = default_input_file_path):
             )
             counter = 0
 
-    write_mediatory_dataset(file_name="modin_results.gzip", df_list=df_list)
+    write_mediatory_dataset_modin(file_name="modin_results.gzip", df_list=df_list)
