@@ -5,6 +5,11 @@ from src.parsers.parallell_parser import *
 
 
 def modin_main(input_path: str = default_input_file_path):
+    """
+    Same functionality as of mp_pool_executor, done with Modin dataframe with ray backend.
+    :param input_path: str : input file path
+    :return: None
+    """
     ray.init(
         num_cpus=int(os.environ["NUM_CPUS"]),
         include_dashboard=True,
@@ -13,7 +18,7 @@ def modin_main(input_path: str = default_input_file_path):
         dashboard_port=int(os.environ["RAY_DASHBOARD_PORT"]),
     )
 
-    chunk_size = batch_size // 16
+    chunk_size = batch_size // (n_parallel_procs//2)
     df_chunks = mpd.read_csv(
         input_path,
         compression="gzip",
@@ -29,10 +34,12 @@ def modin_main(input_path: str = default_input_file_path):
         chunk = chunk[chunk["ID (hex)"].isin(columns_of_interest)]
         df_list.append(build_intermediary_df(chunk))
         counter += 1
-        if counter % 128 == 0:
+        if counter % n_parallel_procs == 0:
             write_mediatory_dataset_modin(
                 file_name="modin_results.gzip", df_list=df_list
             )
             counter = 0
 
-    write_mediatory_dataset(file_name="modin_results.gzip", df_list=df_list)
+    write_mediatory_dataset_modin(file_name="modin_results.gzip", df_list=df_list)
+
+    write_mpodin_to_final_parquet()
