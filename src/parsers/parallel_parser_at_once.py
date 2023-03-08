@@ -18,13 +18,14 @@ def mp_signal_processor_at_once(df, buffer):
     df["signal_value_pairs"] = df.apply(
         lambda x: get_signal_value_pairs(x.values.tolist()), axis=1
     )
+    df = df[["Timestamp", "Bus", "signal_value_pairs"]]
     df["frames_10ms"] = df["Timestamp"] * 100
     df["frames_10ms"] = df["frames_10ms"].astype("int")
     df = df.sort_values(by="Timestamp")
     df.drop_duplicates(subset=["frames_10ms"], keep="last", inplace=True)
     df["Timestamp"] = df["frames_10ms"] / 100
 
-    buffer.append(df[["Timestamp", "signal_value_pairs", "Value"]])
+    buffer.append(df)
 
 
 def mp_parser_at_once(input_path: str = None):
@@ -55,9 +56,10 @@ def mp_parser_at_once(input_path: str = None):
     df = pd.concat(buffer)
 
     df = df.explode("signal_value_pairs")
-    df[["Bus_Signal", "Value"]] = pd.DataFrame(
+    df[["Signal", "Value"]] = pd.DataFrame(
     df.signal_value_pairs.tolist(), index=df.index
     ).sort_values(by="Timestamp")
+    df[["Bus_Signal"]] = df["Bus"] + "_" + df["Signal"]
     df.drop_duplicates(subset=["Timestamp"], keep="last", inplace=True)
     final_df = df.pivot(index="Timestamp", columns="Bus_Signal", values="Value")
     write_mp_to_final_parquet(df=final_df)
