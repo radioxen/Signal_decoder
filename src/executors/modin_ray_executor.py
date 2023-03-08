@@ -6,7 +6,7 @@ from src.parsers.parallell_parser import *
 
 def modin_main(input_path: str = default_input_file_path):
     """
-    Same functionality as of mp_pool_executor, done with Modin dataframe with ray backedn.
+    Same functionality as of mp_pool_executor, done with Modin dataframe with ray backend.
     :param input_path: str : input file path
     :return: None
     """
