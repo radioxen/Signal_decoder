@@ -33,7 +33,7 @@ def mp_parser_at_once(input_path: str = None):
         input_path,
         compression="gzip",
         low_memory=True,
-        chunksize=batch_size // 16,
+        chunksize=batch_size // (n_parallel_procs//2),
         iterator=True,
     )
     proc_list = []
@@ -51,7 +51,7 @@ def mp_parser_at_once(input_path: str = None):
         p.start()
         proc_list.append(p)
         counter += 1
-        if counter == 64:
+        if counter == n_parallel_procs*2:
             for proc in proc_list:
                 proc.join()
                 proc_list = []
